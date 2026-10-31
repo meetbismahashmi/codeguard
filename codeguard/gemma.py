@@ -7,6 +7,8 @@ Gemma 4 model id shown in AI Studio. Without a key, a built-in template
 explanation is used so the demo never breaks.
 """
 import os
+import time
+
 import requests
 
 MODEL = os.getenv("GEMMA_MODEL", "gemma-4-27b-it")
@@ -44,11 +46,23 @@ def explain(pkg, findings, evidence):
         name=pkg["name"], version=pkg["version"], chain=" > ".join(pkg["chain"]),
         depth=pkg["depth"], rules=", ".join(f[0] for f in findings),
         evidence="\n".join(evidence[:8]) or "(none)")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={key}"
-    try:
-        r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
-        r.raise_for_status()
-        return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip(), f"Gemma ({MODEL})"
-    except Exception as e:
-        print(f"[gemma] API call failed ({e}); using template")
-        return _fallback(pkg, findings), "template (API error)"
+    # Try the chosen model first, then the other Gemma 4 model; retry once each.
+    models = [MODEL] + [m for m in ("gemma-4-31b-it", "gemma-4-26b-a4b-it") if m != MODEL]
+    for model in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        for attempt in range(2):
+            try:
+                # Key goes in a header, never in the URL, so it can't leak into logs.
+                r = requests.post(url, headers={"x-goog-api-key": key},
+                                  json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=90)
+                if r.status_code != 200:
+                    print(f"[gemma] {model} returned HTTP {r.status_code}: {r.text[:150]}")
+                    time.sleep(2)
+                    continue
+                parts = r.json()["candidates"][0]["content"]["parts"]
+                text = "\n".join(p["text"] for p in parts if "text" in p and not p.get("thought"))
+                return text.strip(), f"Gemma ({model})"
+            except Exception as e:
+                print(f"[gemma] {model} request failed: {type(e).__name__}")
+                time.sleep(2)
+    return _fallback(pkg, findings), "template (API error)"
