@@ -66,6 +66,10 @@ python main.py sample_project                      # prints explorer.solana.com 
 ```
 Without `SOLANA_LIVE=1` it runs in **simulated mode** (same records and hash chain, stored locally).
 
+**Live proof (devnet):**
+- Agent identity: `98dJpivrksuSJtinaWv38RyVb74iQmda6ntNWVKZzWnm`
+- Example onchain verdict: https://explorer.solana.com/tx/3JuZbovENJFQ37E6gBNzAQP6bUHnPm3ZrSopkLWv9ZMd9sqRfw1gupEb9nNXbdjGyezcdAMkaYigW6rDc1uZjRTq?cluster=devnet
+
 ### 🧑‍✈️ How GitHub Copilot helped
 - **Unfamiliar parsing APIs:** we had never parsed nested `node_modules` trees. We asked Copilot
   *"walk node_modules recursively and record each package's depth and parent chain"* — it produced the
