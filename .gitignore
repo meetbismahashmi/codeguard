@@ -1,0 +1,5 @@
+__pycache__/
+.pytest_cache/
+.env
+agent-keypair.json
+audit_log.jsonl

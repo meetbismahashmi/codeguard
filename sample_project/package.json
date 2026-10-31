@@ -1,0 +1,10 @@
+{
+  "name": "demo-todo-app",
+  "version": "1.0.0",
+  "description": "Demo project for CodeGuard. Contains INERT test fixtures only - do not npm install.",
+  "dependencies": {
+    "express-lite": "^4.0.0",
+    "axioss": "^1.0.0",
+    "color-utils": "^2.0.0"
+  }
+}

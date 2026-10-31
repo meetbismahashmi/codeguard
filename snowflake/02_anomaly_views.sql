@@ -1,0 +1,26 @@
+-- Suspicious publishing anomalies (drafted with CoCo)
+USE SCHEMA CODEGUARD_DB.SECURITY;
+
+-- 1) Confirmed malicious packages (OSV "MAL-" advisories = malware, not just bugs)
+CREATE OR REPLACE VIEW MALWARE_PACKAGES AS
+SELECT DISTINCT PACKAGE_NAME, ADVISORY_ID, SUMMARY, PUBLISHED_AT
+FROM KNOWN_COMPROMISED_PACKAGES
+WHERE ADVISORY_ID LIKE 'MAL-%';
+
+-- 2) Burst publishing: many malicious advisories on the same day = coordinated campaign
+CREATE OR REPLACE VIEW PUBLISHING_BURSTS AS
+SELECT DATE_TRUNC('day', PUBLISHED_AT) AS DAY, COUNT(DISTINCT PACKAGE_NAME) AS NEW_MALICIOUS_PKGS
+FROM MALWARE_PACKAGES
+GROUP BY 1
+HAVING COUNT(DISTINCT PACKAGE_NAME) >= 10
+ORDER BY 2 DESC;
+
+-- 3) Typosquats: malicious names 1 edit away from popular packages
+CREATE OR REPLACE VIEW TYPOSQUAT_SUSPECTS AS
+SELECT m.PACKAGE_NAME AS SUSPECT, p.POPULAR AS IMITATES
+FROM MALWARE_PACKAGES m
+JOIN (SELECT column1 AS POPULAR FROM VALUES ('express'),('react'),('lodash'),('axios'),('chalk'),('request'),('moment'),('debug')) p
+  ON EDITDISTANCE(m.PACKAGE_NAME, p.POPULAR) = 1;
+
+-- Export used for offline demo (data/known_compromised.csv):
+-- SELECT PACKAGE_NAME, VERSION, SEVERITY, ADVISORY_ID, SUMMARY FROM KNOWN_COMPROMISED_PACKAGES;

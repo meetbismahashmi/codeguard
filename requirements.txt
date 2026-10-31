@@ -1,0 +1,5 @@
+requests
+pytest
+# Optional (for live integrations):
+# snowflake-connector-python   # live Snowflake queries
+# solders                      # real Solana devnet signatures

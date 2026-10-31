@@ -1,0 +1,8 @@
+package_name,version,severity,advisory_id,summary
+event-stream,3.3.6,CRITICAL,GHSA-mh6f-8j2x-4483,Malicious code injected via flatmap-stream dependency
+flatmap-stream,0.1.1,CRITICAL,GHSA-9x64-5r7x-2q53,Contains backdoor targeting cryptocurrency wallets
+ua-parser-js,0.7.29,CRITICAL,GHSA-pjwm-rvh2-c87w,Hijacked versions installed crypto miner and password stealer
+coa,2.0.3,CRITICAL,GHSA-73qr-pfmq-6rp8,Compromised release runs malicious install script
+rc,1.2.9,CRITICAL,GHSA-g2q5-5433-rhrf,Compromised release runs malicious install script
+axioss,*,CRITICAL,MAL-2026-DEMO1,Typosquat of axios that steals environment variables
+string-padder,2.1.4,HIGH,MAL-2026-DEMO2,Hijacked release exfiltrates .npmrc tokens on install
