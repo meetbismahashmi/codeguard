@@ -24,7 +24,7 @@ pytest -v                                  # run the test suite
 The demo project contains a hijacked package hidden **3 levels deep**
 (`express-lite > body-helper > string-padder`) and a **typosquat** (`axioss` imitating `axios`).
 CodeGuard catches both and marks the 3 clean packages as SAFE.
-
+After each scan, CodeGuard generates `report.html`, a visual dashboard with the dependency tree, findings, Gemma 4 explanations and Solana Explorer links, and opens it in your browser.
 > ⚠️ `sample_project/` contains **inert test fixtures only**. The suspicious functions are never called
 > and point to the reserved `example.invalid` domain. Do not `npm install` it.
 
