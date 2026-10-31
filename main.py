@@ -7,7 +7,7 @@ CodeGuard CLI
 """
 import sys
 
-from codeguard import scanner, snowflake_source, gemma, solana_log
+from codeguard import scanner, snowflake_source, gemma, solana_log, report
 
 RESET, RED, YEL, GRN, BOLD = "\033[0m", "\033[91m", "\033[93m", "\033[92m", "\033[1m"
 COLOR = {"MALICIOUS": RED, "SUSPICIOUS": YEL, "SAFE": GRN}
@@ -40,9 +40,11 @@ def scan(project_dir):
     flagged = [r for r in results if r[4] != "SAFE"]
     print(f"\n[3] {len(flagged)} risky package(s). Explaining with Gemma 4 + logging to Solana...\n")
 
+    extra = {}
     for p, findings, evidence, score, verdict in flagged:
         text, engine = gemma.explain(p, findings, evidence)
         entry = solana_log.log_verdict(p["name"], p["version"], verdict, score)
+        extra[p["path"]] = {"explanation": text, "engine": engine, "entry": entry}
         print(f"{COLOR[verdict]}{BOLD}== {p['name']}@{p['version']} [{verdict}, score {score}] =={RESET}")
         print(f"Path: {' > '.join(p['chain'])}  (depth {p['depth']})")
         for f in findings:
@@ -57,7 +59,14 @@ def scan(project_dir):
         if verdict == "SAFE":
             solana_log.log_verdict(p["name"], p["version"], verdict, score)
 
-    print(f"Audit log integrity: {'VALID' if solana_log.verify_chain() else 'TAMPERED!'}")
+    integrity = solana_log.verify_chain()
+    print(f"Audit log integrity: {'VALID' if integrity else 'TAMPERED!'}")
+
+    rows = [{"pkg": p, "findings": f, "evidence": ev, "score": s, "verdict": v,
+             "explanation": "", "engine": "", "entry": None, **extra.get(p["path"], {})}
+            for p, f, ev, s, v in results]
+    out = report.build(project_dir, rows, source, solana_log.agent_identity(), integrity)
+    print(f"\nDashboard saved to {out} (opening in your browser)")
     return results
 
 
