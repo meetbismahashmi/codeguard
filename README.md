@@ -44,7 +44,7 @@ Without a key, a template explanation is used so the demo never breaks.
 - `snowflake/01_setup_and_load.sql` — builds `CODEGUARD_DB.SECURITY.KNOWN_COMPROMISED_PACKAGES` from raw OSV JSON.
 - `snowflake/02_anomaly_views.sql` — publishing-anomaly views: `MALWARE_PACKAGES`, `PUBLISHING_BURSTS`
   (coordinated malware campaigns), `TYPOSQUAT_SUSPECTS` (edit distance 1 from popular packages).
-- SQL was drafted by prompting **Snowflake Cortex Code (CoCo)** in plain English, then reviewed.
+- We attempted to use **Snowflake Cortex Code (CoCo)** to generate the pipeline SQL, but CoCo isn't enabled on Snowflake trial accounts, so the team wrote the SQL by hand following the same pipeline design. The agent queries the live Snowflake table at runtime.
 - The agent queries Snowflake live when credentials are set:
 ```bash
 export SNOWFLAKE_ACCOUNT=xxx SNOWFLAKE_USER=xxx SNOWFLAKE_PASSWORD=xxx
